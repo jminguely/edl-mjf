@@ -2,6 +2,16 @@
 <xmeml version="5">
   <project>
     <name>2024-07-15_LAC_AIR_EDL</name>
+    <people>
+      <cam1>Alain</cam1>
+      <cam2>Helder</cam2>
+      <cam3>Laura</cam3>
+      <cam4>Hervé</cam4>
+      <cam5>Yves</cam5>
+      <cam6>Ben</cam6>
+      <cam7>Alain</cam7>
+      <cam8>Alain</cam8>
+    </people>
     <children>
       <bin>
         <name>Sources</name>

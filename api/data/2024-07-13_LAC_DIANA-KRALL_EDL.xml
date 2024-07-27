@@ -2,6 +2,16 @@
 <xmeml version="5">
   <project>
     <name>2024-07-13_LAC_DIANA-KRALL_EDL</name>
+    <people>
+      <cam1>Alain</cam1>
+      <cam2>Hervé</cam2>
+      <cam3>Aline</cam3>
+      <cam4>Laura</cam4>
+      <cam5>Yves</cam5>
+      <cam6>Helder</cam6>
+      <cam7>Alain</cam7>
+      <cam8>Alain</cam8>
+    </people>
     <children>
       <bin>
         <name>Sources</name>

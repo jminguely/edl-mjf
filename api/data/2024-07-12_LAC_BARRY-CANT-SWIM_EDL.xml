@@ -2,6 +2,15 @@
 <xmeml version="5">
   <project>
     <name>2024-07-12_LAC_BARRY-CANT-SWIM_EDL</name>
+    <people>
+      <cam1>Alain</cam1>
+      <cam2>Helder</cam2>
+      <cam3>Aline</cam3>
+      <cam4>Yves</cam4>
+      <cam5>Ben</cam5>
+      <cam7>Alain</cam7>
+      <cam8>Alain</cam8>
+    </people>
     <children>
       <bin>
         <name>Sources</name>
