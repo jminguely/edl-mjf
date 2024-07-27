@@ -16,7 +16,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 frame_rate = 25
 
 # Function to convert frames to HH:MM:SS:FF
