@@ -6,7 +6,7 @@
         <th @click="sortBy('filename')">CONCERT</th>
         <th @click="sortBy('clip_master_duration')">DURATION</th>
         <th @click="sortBy('total_cuts')">CUTS</th>
-        <th @click="sortBy('cuts_per_minute')">CUT/PER MIN</th>
+        <th @click="sortBy('cuts_per_minute')">CUT/MIN.</th>
         <th @click="sortBy('top_longest_cut_duration')">LONGEST CUT</th>
       </tr>
       <tr v-if="loading" class="loading-bar">
