@@ -1,11 +1,21 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from asgiref.wsgi import WsgiToAsgi
 import os
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+app = FastAPI()
+asgi_app = WsgiToAsgi(app)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this to your needs
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 frame_rate = 25
 
@@ -106,14 +116,14 @@ def parse_edl(xml_file_path, frame_rate):
         "cuts_per_minute": cuts_per_minute
     }
 
-@app.route('/edlstats', methods=['GET'])
-def edlstats():
-    file_name = request.args.get('concert', '2024-07-07_LAC_EDITORS')
+@app.get("/edlstats")
+async def edlstats(request: Request):
+    file_name = request.query_params.get('concert', '2024-07-07_LAC_EDITORS')
     xml_file_path = f'data/{file_name}_EDL.xml'
     data = parse_edl(xml_file_path, frame_rate)
-    return jsonify(data)
+    return data
 
-@app.route('/edlsummary', methods=['GET'])
+@app.get("/edlsummary")
 def edlsummary():
     data_directory = 'data'
     total_duration = 0
@@ -170,7 +180,8 @@ def edlsummary():
             })
 
     concerts = sorted(concerts, key=lambda x: x['filename'])
-    return jsonify(concerts)
+    return concerts  # Directly return the list
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
