@@ -2,9 +2,26 @@
   <div>
     <header>
       <h1>MJF EDL STATS: Detail</h1>
+      <div style="margin-bottom: 1rem">
+        <label for="yearFilter">Filter by year: </label>
+        <select
+          id="yearFilter"
+          v-model="selectedYear"
+          @change="filterConcertsByYear"
+        >
+          <option value="">All Years</option>
+          <option v-for="year in availableYears" :key="year" :value="year">
+            {{ year }}
+          </option>
+        </select>
+      </div>
       <label for="concertSelect">Choose a concert: </label>
       <select id="concertSelect" v-model="selectedConcert" @change="fetchData">
-        <option v-for="concert in concerts" :key="concert" :value="concert">
+        <option
+          v-for="concert in filteredConcerts"
+          :key="concert"
+          :value="concert"
+        >
           {{ concert }}
         </option>
       </select>
@@ -85,15 +102,51 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
-import concerts from "@/data/concerts.json"; // Adjust the path to your JSON concert
 
 export default {
   setup() {
     const data = ref({});
-    const selectedConcert = ref(concerts[0]);
-    const concertsList = ref(concerts);
+    const selectedConcert = ref("");
+    const concertsList = ref([]);
+    const selectedYear = ref("");
+
+    const availableYears = computed(() => {
+      const years = [
+        ...new Set(concertsList.value.map((concert) => concert.split("-")[0])),
+      ];
+      return years.sort().reverse();
+    });
+
+    const filteredConcerts = computed(() => {
+      if (!selectedYear.value) {
+        return concertsList.value;
+      }
+      return concertsList.value.filter((concert) =>
+        concert.startsWith(selectedYear.value)
+      );
+    });
+
+    const fetchConcerts = async () => {
+      try {
+        const response = await axios.get(
+          `https://edl-api.mingus.space/concerts`
+        );
+        concertsList.value = response.data.map((concert) => concert.name);
+        if (concertsList.value.length > 0) {
+          selectedConcert.value = concertsList.value[0];
+          fetchData();
+        }
+      } catch (error) {
+        console.error("Error fetching concerts:", error);
+        // Fallback to static data if API fails
+        const concerts = await import("@/data/concerts.json");
+        concertsList.value = concerts.default;
+        selectedConcert.value = concertsList.value[0];
+        fetchData();
+      }
+    };
 
     const fetchData = async () => {
       try {
@@ -106,14 +159,25 @@ export default {
       }
     };
 
+    const filterConcertsByYear = () => {
+      if (filteredConcerts.value.length > 0) {
+        selectedConcert.value = filteredConcerts.value[0];
+        fetchData();
+      }
+    };
+
     onMounted(() => {
-      fetchData();
+      fetchConcerts();
     });
 
     return {
       data,
       selectedConcert,
       concerts: concertsList,
+      selectedYear,
+      availableYears,
+      filteredConcerts,
+      filterConcertsByYear,
       fetchData,
     };
   },

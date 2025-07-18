@@ -1,19 +1,30 @@
 <template>
   <div>
     <h1>MJF EDL STATS: All Concerts</h1>
+    <div style="margin-bottom: 1rem">
+      <label for="yearFilter">Filter by year: </label>
+      <select id="yearFilter" v-model="selectedYear" @change="filterByYear">
+        <option value="">All Years</option>
+        <option v-for="year in availableYears" :key="year" :value="year">
+          {{ year }}
+        </option>
+      </select>
+    </div>
     <table>
       <tr class="sum">
         <th @click="sortBy('filename')">CONCERT</th>
+        <th @click="sortBy('year')">YEAR</th>
         <th @click="sortBy('clip_master_duration')">DURATION</th>
         <th @click="sortBy('total_cuts')">CUTS</th>
         <th @click="sortBy('cuts_per_minute')">CUT/MIN.</th>
         <th @click="sortBy('top_longest_cut_duration')">LONGEST CUT</th>
       </tr>
       <tr v-if="loading" class="loading-bar">
-        <td>Loading...</td>
+        <td colspan="6">Loading...</td>
       </tr>
       <tr v-for="concert in sortedData" :key="concert.filename">
         <th>{{ concert.filename }}</th>
+        <td>{{ concert.year }}</td>
         <td>{{ concert.clip_master_duration }}</td>
         <td>{{ concert.total_cuts }}</td>
         <td>{{ concert.cuts_per_minute }}</td>
@@ -37,6 +48,21 @@ export default {
     const data = ref([]);
     const sortKey = ref("");
     const sortOrder = ref(1);
+    const selectedYear = ref("");
+
+    const availableYears = computed(() => {
+      const years = [...new Set(data.value.map((concert) => concert.year))];
+      return years.sort().reverse(); // Show newest years first
+    });
+
+    const filteredData = computed(() => {
+      if (!selectedYear.value) {
+        return data.value;
+      }
+      return data.value.filter(
+        (concert) => concert.year === selectedYear.value
+      );
+    });
 
     const fetchData = async () => {
       loading.value = true;
@@ -61,8 +87,12 @@ export default {
       }
     };
 
+    const filterByYear = () => {
+      // This will trigger the computed property to update
+    };
+
     const sortedData = computed(() => {
-      return data.value.slice().sort((a, b) => {
+      return filteredData.value.slice().sort((a, b) => {
         let result = 0;
         if (a[sortKey.value] < b[sortKey.value]) {
           result = -1;
@@ -84,6 +114,9 @@ export default {
       sortBy,
       sortedData,
       loading,
+      selectedYear,
+      availableYears,
+      filterByYear,
     };
   },
 };
