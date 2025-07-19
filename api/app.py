@@ -57,21 +57,23 @@ def parse_edl(xml_file_path, frame_rate):
     # Find the clipitem elements within the specified path
     clipitems = root.findall('.//project/children/sequence/media/video/track/clipitem')
 
-    # List to store (duration, clipitem_id, file_id) tuples
+    # List to store (duration, clipitem_id, file_id, start_time) tuples
     clipitem_durations = []
 
     # Dictionary to store cumulative durations for each src-* file ID
     cumulative_durations = defaultdict(int)
 
-    # Iterate through clipitems to collect durations and IDs
+    # Iterate through clipitems to collect durations, IDs, and start times
     for clipitem in clipitems:
         duration_element = clipitem.find('duration')
+        start_element = clipitem.find('start')
         file_id_element = clipitem.find('.//file')
-        if duration_element is not None and duration_element.text.isdigit() and file_id_element is not None:
+        if duration_element is not None and duration_element.text.isdigit() and file_id_element is not None and start_element is not None:
             duration = int(duration_element.text)
+            start_time = int(start_element.text)
             clipitem_id = clipitem.get('id')
             file_id = file_id_element.get('id')
-            clipitem_durations.append((duration, clipitem_id, file_id))
+            clipitem_durations.append((duration, clipitem_id, file_id, start_time))
             if file_id.startswith('src-'):
                 cumulative_durations[file_id] += duration
 
@@ -83,9 +85,10 @@ def parse_edl(xml_file_path, frame_rate):
         {
             "cut": clipitem_id.replace('cs-', ''),
             "cam": file_id.replace('src-', ''),
-            "duration": frames_to_timecode(duration, frame_rate)
+            "duration": frames_to_timecode(duration, frame_rate),
+            "start_timecode": frames_to_timecode(start_time, frame_rate)
         }
-        for duration, clipitem_id, file_id in clipitem_durations[:5]
+        for duration, clipitem_id, file_id, start_time in clipitem_durations[:5]
     ]
 
     sorted_cumulative_durations = sorted(cumulative_durations.items(), key=lambda x: x[1], reverse=True)
